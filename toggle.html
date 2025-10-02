@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toggle Button Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f6f7fb;
+            color: #1a1f36;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        .card {
+            width: 100%;
+            max-width: 520px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            padding: 28px;
+        }
+        .row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        .title { font-size: 20px; font-weight: 700; }
+        .subtitle { margin-top: 8px; color: #4e5a73; font-size: 14px; }
+
+        .toggle { position: relative; width: 64px; height: 36px; border-radius: 999px; cursor: pointer; }
+        .track { position: absolute; inset: 0; border-radius: 999px; background: #e5e9f2; box-shadow: inset 0 2px 6px rgba(0,0,0,0.06); transition: background 0.25s ease; }
+        .toggle input { display: none; }
+        .knob {
+            position: absolute; top: 4px; left: 4px; width: 28px; height: 28px;
+            background: #ffffff; border-radius: 50%; box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            transition: transform 0.25s ease, color 0.25s ease; display: grid; place-items: center; color: #94a3b8;
+        }
+        .toggle input:checked + .knob { transform: translateX(28px); color: #0d9488; }
+        .toggle input:checked ~ .track { background: #0ea5e9 linear-gradient(135deg,#0ea5e9 0%, #22c55e 100%); }
+
+        .icon { width: 16px; height: 16px; }
+        .sun { display: block; }
+        .moon { display: none; }
+        .toggle input:checked + .knob .sun { display: none; }
+        .toggle input:checked + .knob .moon { display: block; }
+
+        .demo { margin-top: 22px; padding: 18px; border-radius: 12px; background: #f1f5f9; border: 1px solid #e2e8f0; }
+        .kv { display: grid; grid-template-columns: 140px 1fr; gap: 8px 12px; font-size: 14px; }
+        .kv .k { color: #64748b; }
+        .kv .v { color: #0f172a; }
+
+        .dark body { background: #0b1220; color: #e2e8f0; }
+        .dark .card { background: #0f172a; box-shadow: 0 20px 40px rgba(2,6,23,0.6); }
+        .dark .subtitle { color: #94a3b8; }
+        .dark .demo { background: #0b1220; border-color: #1f2937; }
+        .dark .kv .k { color: #94a3b8; }
+        .dark .kv .v { color: #e5e7eb; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="row">
+            <div>
+                <div class="title">Functional Toggle</div>
+                <div class="subtitle">Click to switch theme and state</div>
+            </div>
+            <label class="toggle" aria-label="Theme toggle">
+                <input id="toggleInput" type="checkbox" aria-checked="false" />
+                <span class="knob" aria-hidden="true">
+                    <svg class="icon sun" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V5a1 1 0 0 1 1-1Zm0 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm8-6a1 1 0 0 1 1 1 1 1 0 1 1-1-1ZM5 12a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm.293-6.707a1 1 0 0 1 1.414 0l.707.707A1 1 0 1 1 6 7l-.707-.707a1 1 0 0 1 0-1.414ZM17 7a1 1 0 0 1 1.707-.707l.707.707A1 1 0 1 1 18 8l-.707-.707A1 1 0 0 1 17 7ZM6.293 17.293A1 1 0 0 1 7 17a1 1 0 0 1 .707.293l.707.707A1 1 0 1 1 7 19l-.707-.707a1 1 0 0 1 0-1ZM17 17a1 1 0 0 1 1.707.293 1 1 0 0 1-.293 1.414L18 19a1 1 0 1 1-1.414-1.414l.707-.707Z"/></svg>
+                    <svg class="icon moon" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+                </span>
+                <span class="track"></span>
+            </label>
+        </div>
+        <div class="demo" id="demo">
+            <div class="kv">
+                <div class="k">Checked</div><div class="v" id="kvChecked">false</div>
+                <div class="k">Theme</div><div class="v" id="kvTheme">light</div>
+                <div class="k">Timestamp</div><div class="v" id="kvTime">-</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const input = document.getElementById('toggleInput');
+        const kvChecked = document.getElementById('kvChecked');
+        const kvTheme = document.getElementById('kvTheme');
+        const kvTime = document.getElementById('kvTime');
+
+        function setTheme(isDark) {
+            document.documentElement.classList.toggle('dark', isDark);
+            kvTheme.textContent = isDark ? 'dark' : 'light';
+        }
+
+        function updateState() {
+            const checked = input.checked;
+            input.setAttribute('aria-checked', String(checked));
+            kvChecked.textContent = String(checked);
+            kvTime.textContent = new Date().toLocaleString();
+            setTheme(checked);
+        }
+
+        input.addEventListener('change', updateState);
+        updateState();
+    </script>
+</body>
+</html>
